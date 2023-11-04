@@ -24,7 +24,6 @@
         public override Intersection GetIntersection(Line line, double minDist, double maxDist)
         {
             var oc = line.X0 - Center;
-            var invSemiAxes = new Vector(1.0 / SemiAxesLength.X, 1.0 / SemiAxesLength.Y, 1.0 / SemiAxesLength.Z);
 
             var a = line.Dx * line.Dx / (SemiAxesLength * SemiAxesLength);
             var b = oc * 2 * line.Dx / (SemiAxesLength * SemiAxesLength);
@@ -55,13 +54,9 @@
 
         public Vector Normal(Vector point)
         {
-            var oc = point - Center;
-            var normal = new Vector(
-                2 * oc.X / (SemiAxesLength.X * SemiAxesLength.X),
-                2 * oc.Y / (SemiAxesLength.Y * SemiAxesLength.Y),
-                2 * oc.Z / (SemiAxesLength.Z * SemiAxesLength.Z)
-            ).Normalize();
-            return normal;
+            var n = point - Center;
+            n.Normalize();
+            return n;
         }
 
     }
