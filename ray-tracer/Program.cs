@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace rt
+﻿namespace rt
 {
     public class Program
     {
@@ -13,7 +9,8 @@ namespace rt
             if (Directory.Exists(frames))
             {
                 var d = new DirectoryInfo(frames);
-                foreach (var file in d.EnumerateFiles("*.png")) {
+                foreach (var file in d.EnumerateFiles("*.png"))
+                {
                     file.Delete();
                 }
             }
@@ -112,21 +109,21 @@ namespace rt
 
             var lights = new Light[]
             {
-                new Light(
+                new(
                     new Vector(-50.0, 0.0, 0.0),
                     new Color(0.8, 0.8, 0.8, 1.0),
                     new Color(0.8, 0.8, 0.8, 1.0),
                     new Color(0.8, 0.8, 0.8, 1.0),
                     1.0
                 ),
-                new Light(
+                new(
                     new Vector(20.0, 20.0, 0.0),
                     new Color(0.8, 0.8, 0.8, 1.0),
                     new Color(0.8, 0.8, 0.8, 1.0),
                     new Color(0.8, 0.8, 0.8, 1.0),
                     1.0
                 ),
-                new Light(
+                new(
                     new Vector(0.0, 0.0, 300.0),
                     new Color(0.8, 0.8, 0.8, 1.0),
                     new Color(0.8, 0.8, 0.8, 1.0),
@@ -150,13 +147,13 @@ namespace rt
             var tasks = new Task[n];
             for (var i = 0; i < n; i++)
             {
-                var ind = new[]{i};
+                var ind = new[] { i };
                 tasks[i] = Task.Run(() =>
                 {
                     var k = ind[0];
-                    var a = (step * k) * Math.PI / 180.0;
-                    var ca =  Math.Cos(a);
-                    var sa =  Math.Sin(a);
+                    var a = step * k * Math.PI / 180.0;
+                    var ca = Math.Cos(a);
+                    var sa = Math.Sin(a);
 
                     var dir = first * ca + (up ^ first) * sa + up * (up * first) * (1.0 - ca);
 
@@ -171,10 +168,10 @@ namespace rt
                         1000.0
                     );
 
-                    var filename = frames+"/" + $"{k + 1:000}" + ".png";
+                    var filename = frames + "/" + $"{k + 1:000}" + ".png";
 
                     rt.Render(camera, width, height, filename);
-                    Console.WriteLine($"Frame {k+1}/{n} completed");
+                    Console.WriteLine($"Frame {k + 1}/{n} completed");
                 });
             }
 

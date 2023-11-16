@@ -5,7 +5,8 @@
         public Color Color { get; set; }
         public Material Material { get; set; }
 
-        public Geometry(Material material, Color color) {
+        public Geometry(Material material, Color color)
+        {
             Material = material;
             Color = color;
         }

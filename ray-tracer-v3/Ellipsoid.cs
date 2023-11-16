@@ -23,40 +23,71 @@
 
         public override Intersection GetIntersection(Line line, double minDist, double maxDist)
         {
-            var oc = line.X0 - Center;
+            // Semi axes of lengths A, B, C
+            var A = SemiAxesLength.X;
+            var B = SemiAxesLength.Y;
+            var C = SemiAxesLength.Z;
 
-            var a = line.Dx * line.Dx / (SemiAxesLength * SemiAxesLength);
-            var b = oc * 2 * line.Dx / (SemiAxesLength * SemiAxesLength);
-            var c = oc * oc / (SemiAxesLength * SemiAxesLength) - Radius * Radius;
+            // Center of the ellipsoid
+            var h = Center.X;
+            var k = Center.Y;
+            var l = Center.Z;
 
-            var discriminant = b * b - 4 * a * c;
+            // Direction vector of the line
+            var a = line.Dx.X;
+            var c = line.Dx.Y;
+            var e = line.Dx.Z;
 
-            if (discriminant >= 0)
+            // Point on the line
+            var b = line.X0.X;
+            var d = line.X0.Y;
+            var f = line.X0.Z;
+
+            // Made this for ease of writing
+            static double pow(double exp) => Math.Pow(exp, 2);
+
+            double aEcuation = pow(a) * pow(B) * pow(C) + pow(c) * pow(A) * pow(C) + pow(e) * pow(A) * pow(B);
+            double bEcuation = 2 * (pow(B) * pow(C) * a * (b - h) + c * pow(A) * pow(C) * (d - k) + e * pow(A) * pow(B) * (f - l));
+            double cEcuation = (pow(B) * pow(C) * pow(b - h)) + (pow(A) * pow(C) * pow(d - k)) + (pow(A) * pow(B) * pow(f - l)) - pow(Radius * A * B * C);
+
+            var discriminant = bEcuation * bEcuation - 4 * aEcuation * cEcuation;
+
+            if (discriminant < 0)
             {
-                var sqrtDiscriminant = Math.Sqrt(discriminant);
-                var t1 = (-b - sqrtDiscriminant) / (2 * a);
-                var t2 = (-b + sqrtDiscriminant) / (2 * a);
+                return new();
+            }
+            var t1 = (-bEcuation + Math.Sqrt(discriminant)) / (2 * aEcuation);
+            var t2 = (-bEcuation - Math.Sqrt(discriminant)) / (2 * aEcuation);
 
-                if ((t1 >= minDist && t1 <= maxDist) || (t2 >= minDist && t2 <= maxDist))
+            if (t1 <= t2)
+            {
+                if (t1 >= minDist && t1 <= maxDist)
                 {
-                    var t = (t1 >= minDist && t1 <= maxDist) ? t1 : t2;
-                    var intersectionPoint = line.CoordinateToPosition(t);
-                    var normal = Normal(intersectionPoint);
+                    Vector vector = line.X0 + line.Dx * t1;
+                    var normal = vector - Center;
+                    normal.Divide(SemiAxesLength);
+                    normal = normal.Normalize();
 
-                    return new Intersection(true, true, this, line, t, normal);
+                    return new Intersection(true, true, this, line, t1, normal);
                 }
             }
+            if (t2 >= minDist && t2 <= maxDist)
+            {
+                Vector vector = line.X0 + line.Dx * t2;
+                var normal = vector - Center;
+                normal.Divide(SemiAxesLength);
+                normal = normal.Normalize();
 
-            return new Intersection();
+                return new Intersection(true, true, this, line, t2, normal);
+            }
+            return new();
         }
 
 
 
-        public Vector Normal(Vector point)
+        public override Vector Normal(Vector point)
         {
-            var n = point - Center;
-            n.Normalize();
-            return n;
+            return (point - Center).Normalize();
         }
 
     }

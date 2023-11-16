@@ -29,7 +29,7 @@
         {
             Direction.Normalize();
             Up.Normalize();
-            Up = (Direction ^ Up) ^ Direction;
+            Up = Direction ^ Up ^ Direction;
         }
     }
 }

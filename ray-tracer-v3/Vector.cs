@@ -2,9 +2,9 @@
 {
     public class Vector
     {
-        public static Vector I = new Vector(1, 0, 0);
-        public static Vector J = new Vector(0, 1, 0);
-        public static Vector K = new Vector(0, 0, 1);
+        public static Vector I = new(1, 0, 0);
+        public static Vector J = new(0, 1, 0);
+        public static Vector K = new(0, 0, 1);
 
         public double X { get; set; }
         public double Y { get; set; }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace rt
+﻿namespace rt
 {
     public class Color
     {

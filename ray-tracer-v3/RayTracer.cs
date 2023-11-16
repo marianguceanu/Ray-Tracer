@@ -39,37 +39,56 @@
             return intersection;
         }
 
+        // Useless??
         private bool IsLit(Vector point, Light light)
         {
             // TODO: ADD CODE HERE
+
             Vector lightDirection = (light.Position - point).Normalize();
+            double distanceToLight = lightDirection.Length();
 
-            // Check for shadows
-            foreach (var geometry in geometries)
+            lightDirection.Normalize();
+            Line ray = new Line(point, lightDirection);
+
+            Intersection intersection = FindFirstIntersection(ray, 0, distanceToLight);
+
+            return !(intersection.Valid && intersection.T < distanceToLight);
+        }
+
+        private Color ColorOfPixel(Intersection intersection, Camera camera, Light[] lights)
+        {
+            Color color = new();
+
+            foreach (var light in lights)
             {
-                // Ignore the geometry itself
-                if (geometry is Light) continue;
+                Vector lightPosition = light.Position;
+                // If not working, revert the above values
+                Vector fromCameraToIntersection = (intersection.Position - camera.Position).Normalize();
+                Vector normalToSurface = intersection.Geometry.Normal(intersection.Position).Normalize();
+                Vector fromLightToIntersection = (intersection.Position - lightPosition).Normalize();
+                Vector result = (normalToSurface * (normalToSurface * fromLightToIntersection) * 2 - fromLightToIntersection).Normalize();
 
-                Intersection shadowIntersection = geometry.GetIntersection(new Line(point, lightDirection), 0.001, double.MaxValue);
+                color = intersection.Geometry.Material.Ambient * light.Ambient;
 
-                // If there is an intersection between the point and the light, it is in shadow
-                if (shadowIntersection.Valid && shadowIntersection.T < 1)
+                if (normalToSurface * fromLightToIntersection > 0)
                 {
-                    return false; // Point is in shadow
+                    color += intersection.Geometry.Material.Diffuse * light.Diffuse *
+                                (normalToSurface * fromLightToIntersection);
                 }
+                if (fromCameraToIntersection * result > 0)
+                {
+                    color += intersection.Geometry.Material.Specular * light.Specular *
+                                Math.Pow(result * fromCameraToIntersection, intersection.Geometry.Material.Shininess);
+                }
+                color *= light.Intensity * 5;
             }
-
-            return true; // Point is lit by the light
+            return color;
         }
 
         public void Render(Camera camera, int width, int height, string filename)
         {
-            var background = new Color(0.2, 0.2, 0.2, 1.0);
             var image = new Image(width, height);
-
-            double aspectRatio = (double)width / height;
-            double halfViewPlaneWidth = camera.ViewPlaneWidth / 2;
-            double halfViewPlaneHeight = halfViewPlaneWidth / aspectRatio;
+            var viewParallel = (camera.Up ^ camera.Direction).Normalize();
 
             for (var i = 0; i < width; i++)
             {
@@ -78,38 +97,14 @@
                     double x = ImageToViewPlane(i, width, camera.ViewPlaneWidth);
                     double y = ImageToViewPlane(j, height, camera.ViewPlaneHeight);
 
-                    Vector viewPlanePoint = camera.Position + camera.Direction * camera.ViewPlaneDistance +
-                                            camera.Up * x * halfViewPlaneWidth +
-                                            camera.Up * y * halfViewPlaneHeight;
-
-                    Line ray = new Line(camera.Position, viewPlanePoint);
-
-                    Intersection intersection = FindFirstIntersection(ray, camera.FrontPlaneDistance, camera.BackPlaneDistance);
-
-                    if (intersection.Valid && intersection.Visible)
+                    Vector rayDirection = camera.Direction * camera.ViewPlaneDistance +
+                                viewParallel * x +
+                                camera.Up * y;
+                    Intersection intersection = FindFirstIntersection(new Line(camera.Position, camera.Position + rayDirection),
+                                                                        camera.FrontPlaneDistance, camera.BackPlaneDistance);
+                    if (intersection.Valid)
                     {
-                        bool isLit = IsLit(intersection.Position, lights[0]); // Assuming there's only one light source
-
-                        if (isLit)
-                        {
-                            // Calculate the color at the intersection point using the Lambertian reflection model
-                            Vector lightDirection = (lights[0].Position - intersection.Position).Normalize();
-                            double diffuseFactor = Math.Max(0, intersection.Normal * lightDirection);
-                            Color pixelColor = intersection.Geometry.Material.Diffuse * diffuseFactor;
-
-                            // Set the pixel color in the image
-                            image.SetPixel(i, j, pixelColor);
-                        }
-                        else
-                        {
-                            // If the point is in shadow, use the background color
-                            image.SetPixel(i, j, background);
-                        }
-                    }
-                    else
-                    {
-                        // If there's no valid intersection, use the background color
-                        image.SetPixel(i, j, background);
+                        image.SetPixel(i, j, ColorOfPixel(intersection, camera, lights));
                     }
                 }
             }

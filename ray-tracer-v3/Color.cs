@@ -1,17 +1,15 @@
-﻿using System;
-
-namespace rt
+﻿namespace rt
 {
     public class Color
     {
-        public static Color RED =     new Color(1.0, 0.0, 0.0, 1.0); 
-        public static Color GREEN =   new Color(0.0, 1.0, 0.0, 1.0); 
-        public static Color BLUE =    new Color(0.0, 0.0, 1.0, 1.0); 
-        public static Color YELLOW =  new Color(1.0, 1.0, 0.0, 1.0); 
-        public static Color MAGENTA = new Color(1.0, 0.0, 1.0, 1.0); 
-        public static Color CYAN =    new Color(0.0, 1.0, 1.0, 1.0); 
-        public static Color WHITE =   new Color(1.0, 1.0, 1.0, 1.0); 
-        public static Color ORANGE =  new Color(1.0, 0.5, 0.0, 1.0); 
+        public static Color RED = new(1.0, 0.0, 0.0, 1.0);
+        public static Color GREEN = new(0.0, 1.0, 0.0, 1.0);
+        public static Color BLUE = new(0.0, 0.0, 1.0, 1.0);
+        public static Color YELLOW = new(1.0, 1.0, 0.0, 1.0);
+        public static Color MAGENTA = new(1.0, 0.0, 1.0, 1.0);
+        public static Color CYAN = new(0.0, 1.0, 1.0, 1.0);
+        public static Color WHITE = new(1.0, 1.0, 1.0, 1.0);
+        public static Color ORANGE = new(1.0, 0.5, 0.0, 1.0);
 
         public double Red { get; set; }
         public double Green { get; set; }

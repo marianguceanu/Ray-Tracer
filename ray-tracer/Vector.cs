@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace rt
+﻿namespace rt
 {
     public class Vector
     {
@@ -66,7 +64,7 @@ namespace rt
 
         public double Length()
         {
-            return  Math.Sqrt(Length2());
+            return Math.Sqrt(Length2());
         }
 
         public Vector Normalize()
